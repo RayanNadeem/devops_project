@@ -1,0 +1,71 @@
+pipeline {
+    agent any
+    environment {
+        DOCKER_IMAGE = 'fqabdullah/ecommerce-frontend:latest'
+        DOCKER_REGISTRY = 'docker.io'
+    }
+    stages {
+        stage('Clean Workspace') {
+            steps {
+                script {
+                    deleteDir()
+                }
+            }
+        }
+        stage('Checkout') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'github-credentials', 
+                                                  usernameVariable: 'GITHUB_USERNAME', 
+                                                  passwordVariable: 'GITHUB_PASSWORD')]) {
+                    bat 'git clone https://%GITHUB_USERNAME%:%GITHUB_PASSWORD%@github.com/RayanNadeem/devops_project.git'
+                }
+            }
+        }
+        stage('List Files') {
+            steps {
+                bat 'dir'
+            }
+        }
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    dir('devops_project') {  // Changed directory name to match new repo
+                        bat 'docker build -t %DOCKER_IMAGE% .'
+                    }
+                }
+            }
+        }
+        stage('Push Docker Image') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'docker-credentials', 
+                                                  usernameVariable: 'DOCKER_USERNAME', 
+                                                  passwordVariable: 'DOCKER_PASSWORD')]) {
+                    script {
+                        bat """
+                            echo %DOCKER_PASSWORD% | docker login %DOCKER_REGISTRY% -u fqabdullah --password-stdin
+                            docker push %DOCKER_IMAGE%
+                        """
+                    }
+                }
+            }
+        }
+        stage('Run Docker Container') {
+            steps {
+                script {
+                    bat 'docker run -d %DOCKER_IMAGE%'
+                }
+            }
+        }
+    }
+    post {
+        always {
+            echo 'Pipeline completed.'
+        }
+        success {
+            echo 'Pipeline succeeded!'
+        }
+        failure {
+            echo 'Pipeline failed.'
+        }
+    }
+}
