@@ -25,7 +25,7 @@ pipeline {
             steps {
                 echo "Building the project..."
                 // Replace the following with your actual build command, e.g., `mvn clean install`
-                sh 'echo Build step executed'
+                bat 'echo Build step executed'
             }
         }
 
@@ -33,7 +33,7 @@ pipeline {
             steps {
                 echo "Running tests..."
                 // Replace with your test commands, e.g., `mvn test` or `npm test`
-                sh 'echo Test step executed'
+                bat 'echo Test step executed'
             }
         }
 
@@ -41,7 +41,7 @@ pipeline {
             steps {
                 echo "Deploying the application..."
                 // Add your deployment commands here
-                sh 'echo Deploy step executed'
+                bat 'echo Deploy step executed'
             }
         }
     }
