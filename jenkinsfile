@@ -54,7 +54,7 @@ pipeline {
                                                   passwordVariable: 'Motu#1234')]) {
                     script {
                         bat """
-                            echo %DOCKER_PASSWORD% | docker login ${DOCKER_REGISTRY} -u %DOCKER_USERNAME% --password-stdin
+                            echo fqabdullah | docker login ${DOCKER_REGISTRY} -u Motu#1234 --password-stdin
                             docker push ${FRONTEND_IMAGE}
                             docker push ${BACKEND_IMAGE}
                         """
