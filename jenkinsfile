@@ -25,9 +25,11 @@ pipeline {
             steps {
                 script {
                     echo "Building Docker image..."
-                    bat '''
-                        docker build -t  %DOCKER_IMAGE%  .
-                    '''
+                    dir('Ecommerce-Frontend'){
+                        bat '''
+                            docker build -t  %DOCKER_IMAGE%  .
+                        '''
+                    }
                 }
             }
         }
