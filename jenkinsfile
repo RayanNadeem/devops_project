@@ -1,70 +1,55 @@
 pipeline {
     agent any
+
     environment {
-        DOCKER_IMAGE = 'fqabdullah/ecommerce-frontend:latest'
-        DOCKER_REGISTRY = 'docker.io'
+        GIT_REPO = 'https://github.com/RayanNadeem/devops_project.git'
+        BRANCH = 'main' // Change this to your repository branch name, e.g., 'main' or 'master'
     }
+
     stages {
-        stage('Clean Workspace') {
+        stage('Checkout') {
             steps {
-                deleteDir()
+                echo "Checking out repository..."
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: "*/${BRANCH}"]],
+                    doGenerateSubmoduleConfigurations: false,
+                    extensions: [
+                        [$class: 'CloneOption', noTags: false, shallow: true, depth: 1, timeout: 20]
+                    ],
+                    userRemoteConfigs: [[url: "${GIT_REPO}"]]
+                ])
             }
         }
-        stage('Checkout Code') {
+
+        stage('Build') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'github-credentials', 
-                                                  usernameVariable: 'GITHUB_USERNAME', 
-                                                  passwordVariable: 'GITHUB_PASSWORD')]) {
-                    bat 'git clone https://${GITHUB_USERNAME}:${GITHUB_PASSWORD}@github.com/RayanNadeem/devops_project.git'
-                }
+                echo "Building the project..."
+                // Add your build commands here, e.g., `mvn clean install` for Maven projects.
             }
         }
-        stage('List Files') {
+
+        stage('Test') {
             steps {
-                bat 'ls -la'
+                echo "Running tests..."
+                // Add your test commands here.
             }
         }
-        stage('Build Docker Image') {
+
+        stage('Deploy') {
             steps {
-                script {
-                    dir('devops_project') {  // Adjust the directory to match the cloned repo
-                        bat 'docker-compose build frontend'
-                    }
-                }
-            }
-        }
-        stage('Push Docker Image') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'docker-credentials', 
-                                                  usernameVariable: 'DOCKER_USERNAME', 
-                                                  passwordVariable: 'DOCKER_PASSWORD')]) {
-                    script {
-                        bat """
-                            echo ${DOCKER_PASSWORD} | docker login ${DOCKER_REGISTRY} -u ${DOCKER_USERNAME} --password-stdin
-                            docker tag devops_project_frontend ${DOCKER_IMAGE}
-                            docker push ${DOCKER_IMAGE}
-                        """
-                    }
-                }
-            }
-        }
-        stage('Run Docker Container') {
-            steps {
-                script {
-                    bat 'docker run -d -p 3000:3000 ${DOCKER_IMAGE}'
-                }
+                echo "Deploying the application..."
+                // Add your deployment commands here.
             }
         }
     }
+
     post {
-        always {
-            echo 'Pipeline completed.'
-        }
         success {
-            echo 'Pipeline succeeded!'
+            echo "Pipeline completed successfully."
         }
         failure {
-            echo 'Pipeline failed.'
+            echo "Pipeline failed. Check logs for details."
         }
     }
 }
