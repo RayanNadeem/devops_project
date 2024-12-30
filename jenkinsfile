@@ -3,43 +3,45 @@ pipeline {
 
     environment {
         GIT_REPO = 'https://github.com/RayanNadeem/devops_project.git'
-        BRANCH = 'main' // Change this to your repository branch name, e.g., 'main' or 'master'
+        BRANCH = 'main' // Replace with your actual branch name
     }
 
     stages {
         stage('Checkout') {
             steps {
-                echo "Checking out repository..."
-                checkout([
-                    $class: 'GitSCM',
-                    branches: [[name: "*/${BRANCH}"]],
-                    doGenerateSubmoduleConfigurations: false,
-                    extensions: [
-                        [$class: 'CloneOption', noTags: false, shallow: true, depth: 1, timeout: 20]
-                    ],
-                    userRemoteConfigs: [[url: "${GIT_REPO}"]]
-                ])
+                script {
+                    echo "Checking out repository from ${GIT_REPO}..."
+                    checkout([
+                        $class: 'GitSCM',
+                        branches: [[name: "*/${BRANCH}"]],
+                        extensions: [],
+                        userRemoteConfigs: [[url: "${GIT_REPO}"]]
+                    ])
+                }
             }
         }
 
         stage('Build') {
             steps {
                 echo "Building the project..."
-                // Add your build commands here, e.g., `mvn clean install` for Maven projects.
+                // Replace the following with your actual build command, e.g., `mvn clean install`
+                sh 'echo Build step executed'
             }
         }
 
         stage('Test') {
             steps {
                 echo "Running tests..."
-                // Add your test commands here.
+                // Replace with your test commands, e.g., `mvn test` or `npm test`
+                sh 'echo Test step executed'
             }
         }
 
         stage('Deploy') {
             steps {
                 echo "Deploying the application..."
-                // Add your deployment commands here.
+                // Add your deployment commands here
+                sh 'echo Deploy step executed'
             }
         }
     }
