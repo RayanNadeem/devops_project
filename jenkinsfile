@@ -22,10 +22,12 @@ pipeline {
         }
 
         stage('Build') {
-            steps {
-                echo "Building the project..."
-                // Replace the following with your actual build command, e.g., `mvn clean install`
-                bat 'echo Build step executed'
+             steps {
+                script {
+                    dir('/devops_project') { // Navigate into the cloned repo directory
+                        bat 'docker build -t %DOCKER_IMAGE% .'
+                    }
+                }
             }
         }
 
