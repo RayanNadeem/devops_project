@@ -55,7 +55,7 @@ pipeline {
                 script {
                     echo "Pushing Docker images to Docker Hub..."
                     bat """
-                        docker login ${DOCKER_REGISTRY} -u fqabdullah -p Motu#1234
+                        docker login ${DOCKER_REGISTRY} -u fqabdullah -p Motu#1234 --password-stdin
                         docker push ${FRONTEND_IMAGE}
                         docker push ${BACKEND_IMAGE}
                     """
