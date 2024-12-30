@@ -51,11 +51,12 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'docker-credentials', 
                                                   usernameVariable: 'fqabdullah', 
-                                                  passwordVariable: 'Motu#1234 ')]) {
+                                                  passwordVariable: 'Motu#1234')]) {
                     script {
                         bat """
-                            echo %DOCKER_PASSWORD% | docker login %DOCKER_REGISTRY% -u %DOCKER_USERNAME% --password-stdin
-                            docker push %DOCKER_IMAGE%
+                            echo %DOCKER_PASSWORD% | docker login ${DOCKER_REGISTRY} -u %DOCKER_USERNAME% --password-stdin
+                            docker push ${FRONTEND_IMAGE}
+                            docker push ${BACKEND_IMAGE}
                         """
                     }
                 }
