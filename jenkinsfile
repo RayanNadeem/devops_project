@@ -21,11 +21,24 @@ pipeline {
             }
         }
 
-        stage('Build') {
+        stage('Build Front-End') {
             steps {
                 script {
                     echo "Building Docker image..."
-                    dir('Ecommerce-Frontend'){
+                    dir('front-end'){
+                        bat '''
+                            docker build -t  %DOCKER_IMAGE%  .
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('Build Back-End') {
+            steps {
+                script {
+                    echo "Building Docker image..."
+                    dir('backend'){
                         bat '''
                             docker build -t  %DOCKER_IMAGE%  .
                         '''
