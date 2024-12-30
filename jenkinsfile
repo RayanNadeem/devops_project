@@ -57,7 +57,7 @@ pipeline {
                     
                     // Use echo for secure password handling
                     bat """
-                        echo Motu#1234 | docker login %DOCKER_REGISTRY% -u fqabdullah --password-stdin
+                        echo abdfar123 | docker login %DOCKER_REGISTRY% -u fqabdullah --password-stdin
                         docker push %FRONTEND_IMAGE%
                         docker push %BACKEND_IMAGE%
                     """
