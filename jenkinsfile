@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         GIT_REPO = 'https://github.com/RayanNadeem/devops_project.git'
-        BRANCH = 'main' // Replace with your actual branch name
+        BRANCH = 'main'
     }
 
     stages {
@@ -22,11 +22,12 @@ pipeline {
         }
 
         stage('Build') {
-             steps {
+            steps {
                 script {
-                    dir('/devops_project') { // Navigate into the cloned repo directory
-                        bat 'docker build -t %DOCKER_IMAGE% .'
-                    }
+                    echo "Building Docker image..."
+                    bat '''
+                        docker build -t  %DOCKER_IMAGE%  .
+                    '''
                 }
             }
         }
@@ -34,7 +35,7 @@ pipeline {
         stage('Test') {
             steps {
                 echo "Running tests..."
-                // Replace with your test commands, e.g., `mvn test` or `npm test`
+                // Add test commands here
                 bat 'echo Test step executed'
             }
         }
@@ -42,7 +43,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 echo "Deploying the application..."
-                // Add your deployment commands here
+                // Add deployment commands here
                 bat 'echo Deploy step executed'
             }
         }
