@@ -30,7 +30,7 @@ pipeline {
                     echo "Building Docker image for Front-End..."
                     dir('front-end') {
                         bat '''
-                            docker build -t ${FRONTEND_IMAGE} .
+                            docker build -t %FRONTEND_IMAGE% .
                         '''
                     }
                 }
@@ -43,7 +43,7 @@ pipeline {
                     echo "Building Docker image for Back-End..."
                     dir('backend') {
                         bat '''
-                            docker build -t ${BACKEND_IMAGE} .
+                            docker build -t %BACKEND_IMAGE% .
                         '''
                     }
                 }
@@ -57,9 +57,9 @@ pipeline {
                     
                     // Use echo for secure password handling
                     bat """
-                        echo Motu#1234 | docker login ${DOCKER_REGISTRY} -u fqabdullah --password-stdin
-                        docker push ${FRONTEND_IMAGE}
-                        docker push ${BACKEND_IMAGE}
+                        echo Motu#1234 | docker login %DOCKER_REGISTRY% -u fqabdullah --password-stdin
+                        docker push %FRONTEND_IMAGE%
+                        docker push %BACKEND_IMAGE%
                     """
                 }
             }
