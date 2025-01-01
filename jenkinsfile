@@ -1,85 +1,121 @@
 pipeline {
     agent any
-
     environment {
-        GIT_REPO = 'https://github.com/RayanNadeem/devops_project.git'
-        BRANCH = 'main'
+        DOCKER_IMAGE = 'rayan651/frontend:latest'
         DOCKER_REGISTRY = 'docker.io'
-        FRONTEND_IMAGE = 'docker.io/rayan651/front-end:latest'
-        BACKEND_IMAGE = 'docker.io/rayan651/backend:latest'
     }
-
     stages {
+        stage('Clean Workspace') {
+            steps {
+                script {
+                    deleteDir() // Clean the workspace
+                }
+            }
+        }
         stage('Checkout') {
             steps {
-                script {
-                    echo "Checking out repository from ${GIT_REPO}..."
-                    checkout([
-                        $class: 'GitSCM',
-                        branches: [[name: "*/${BRANCH}"]],
-                        extensions: [],
-                        userRemoteConfigs: [[url: "${GIT_REPO}"]]
-                    ])
+                withCredentials([usernamePassword(credentialsId: 'dev-project',
+                                                  usernameVariable: 'username',
+                                                  passwordVariable: 'password')]) {
+                    // Clone the GitHub repository using credentials
+                    bat 'git clone https://%username%:%password%@github.com/mabdullahm773/Web-Application'
                 }
             }
         }
+        stage('List Files') {
+            steps {
+                bat 'dir'  // List the files in the workspace
+            }
+        }
 
-        stage('Build Front-End') {
+
+        stage('Build Docker Image') {
             steps {
                 script {
-                    echo "Building Docker image for Front-End..."
-                    dir('front-end') {
-                        sh '''
-                            docker build -t $FRONTEND_IMAGE .
-                        '''
+                    dir('devops_project') { // Navigate into the cloned repo directory
+                        echo "Building Docker image: ${DOCKER_IMAGE}"
+                        bat 'docker build -t %DOCKER_IMAGE% .'
                     }
                 }
             }
         }
-
-        stage('Build Back-End') {
+        stage('Debug Docker Image Build') {
             steps {
                 script {
-                    echo "Building Docker image for Back-End..."
-                    dir('backend') {
-                        sh '''
-                            docker build -t $BACKEND_IMAGE .
-                        '''
-                    }
+                    echo "Checking local Docker images after build:"
+                    bat 'docker images'
                 }
             }
         }
-
-        stage('Push Docker Images') {
+        stage('Push Docker Image') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'docker-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                withCredentials([usernamePassword(credentialsId: 'docker-credentials',
+                                                  usernameVariable: 'DOCKER_USERNAME',
+                                                  passwordVariable: 'DOCKER_PASSWORD')]) {
                     script {
-                        echo "Logging into Docker Hub and pushing Docker images..."
-                        sh '''
-                            echo $DOCKER_PASS | docker login $DOCKER_REGISTRY -u $DOCKER_USER --password-stdin
-                            docker push $FRONTEND_IMAGE
-                            docker push $BACKEND_IMAGE
-                        '''
+                        echo "Logging in to Docker registry: ${DOCKER_REGISTRY} with user: ${DOCKER_USERNAME}"
+
+                        bat """
+                            docker login %DOCKER_REGISTRY% -u %DOCKER_USERNAME% -p %DOCKER_PASSWORD%
+                        """
+
+                        echo "Pushing Docker image: ${DOCKER_IMAGE}"
+
+                        bat """
+                            docker push %DOCKER_IMAGE%
+                        """
+
                     }
                 }
             }
         }
-
-        stage('Deploy') {
+        stage('Debug Docker Image Push') {
             steps {
-                echo "Deploying the application..."
-                // Add deployment commands here
-                sh 'echo Deploy step executed'
+                script {
+                    echo "Checking Docker registry for the pushed image:"
+                    bat 'docker pull %DOCKER_IMAGE%'
+                }
+            }
+        }
+        stage('Run Docker Container') {
+            steps {
+                script {
+                   
+                    echo "Running Docker container from image: ${DOCKER_IMAGE}"
+                    bat 'docker run -d -p 5000:5000 %DOCKER_IMAGE%'
+                }
+            }
+        }
+        stage('Debug Docker Container') {
+            steps {
+                script {
+                    echo "Listing running Docker containers:"
+                    bat 'docker ps'
+                }
             }
         }
     }
-
     post {
+        always {
+            echo 'Pipeline completed.'
+        }
         success {
-            echo "Pipeline completed successfully."
+            echo 'Pipeline succeeded!'
+            script {
+                slackSend(
+                    channel: '#ecommerce-web-applicaiton',
+                    message: "Pipeline succeeded! The Docker image ${DOCKER_IMAGE} was built and pushed successfully."
+                )
+            }
         }
         failure {
-            echo "Pipeline failed. Check logs for details."
+            echo 'Pipeline failed.'
+             script {
+                slackSend(
+                    channel: '#ecommerce-web-applicaiton',
+                    message: "Pipeline failed! Please check the Jenkins logs for details."
+                )
+            }
         }
     }
 }
