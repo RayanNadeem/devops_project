@@ -4,7 +4,7 @@ pipeline {
     environment {
         GIT_REPO = 'https://github.com/RayanNadeem/devops_project.git'
         BRANCH = 'main'
-        DOCKER_REGISTRY = 'docker.io' 
+        DOCKER_REGISTRY = 'docker.io'
         FRONTEND_IMAGE = 'docker.io/rayan651/front-end:latest'
         BACKEND_IMAGE = 'docker.io/rayan651/backend:latest'
     }
@@ -29,8 +29,8 @@ pipeline {
                 script {
                     echo "Building Docker image for Front-End..."
                     dir('front-end') {
-                        bat '''
-                            docker build -t %FRONTEND_IMAGE% .
+                        sh '''
+                            docker build -t $FRONTEND_IMAGE .
                         '''
                     }
                 }
@@ -42,8 +42,8 @@ pipeline {
                 script {
                     echo "Building Docker image for Back-End..."
                     dir('backend') {
-                        bat '''
-                            docker build -t %BACKEND_IMAGE% .
+                        sh '''
+                            docker build -t $BACKEND_IMAGE .
                         '''
                     }
                 }
@@ -52,15 +52,15 @@ pipeline {
 
         stage('Push Docker Images') {
             steps {
-                script {
-                    echo "Logging into Docker Hub and pushing Docker images..."
-                    
-                    // Use echo for secure password handling
-                    bat """
-                        echo abdfar123 | docker login %DOCKER_REGISTRY% -u fqabdullah --password-stdin
-                        docker push %FRONTEND_IMAGE%
-                        docker push %BACKEND_IMAGE%
-                    """
+                withCredentials([usernamePassword(credentialsId: 'docker-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    script {
+                        echo "Logging into Docker Hub and pushing Docker images..."
+                        sh '''
+                            echo $DOCKER_PASS | docker login $DOCKER_REGISTRY -u $DOCKER_USER --password-stdin
+                            docker push $FRONTEND_IMAGE
+                            docker push $BACKEND_IMAGE
+                        '''
+                    }
                 }
             }
         }
@@ -69,7 +69,7 @@ pipeline {
             steps {
                 echo "Deploying the application..."
                 // Add deployment commands here
-                bat 'echo Deploy step executed'
+                sh 'echo Deploy step executed'
             }
         }
     }
