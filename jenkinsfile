@@ -43,7 +43,7 @@ pipeline {
                 }
 
                 script {
-                    dir('devops_project/back-end') { // Navigate into the cloned repo directory
+                    dir('devops_project/backend') { // Navigate into the cloned repo directory
                         echo "Building Docker image: ${DOCKER_IMAGE2}"
                         bat 'docker build -t %DOCKER_IMAGE2% .'
                     }
