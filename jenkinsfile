@@ -18,7 +18,7 @@ pipeline {
                                                   usernameVariable: 'username',
                                                   passwordVariable: 'password')]) {
                     // Clone the GitHub repository using credentials
-                    bat 'git clone https://%username%:%password%@github.com/mabdullahm773/Web-Application'
+                    bat 'git clone https://%username%:%password%@github.com/RayanNadeem/devops_project'
                 }
             }
         }
