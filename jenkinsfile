@@ -85,7 +85,7 @@ pipeline {
                 script {
                    
                     echo "Running Docker container from image: ${DOCKER_IMAGE}"
-                    bat 'docker run -d -p 5000:5000 %DOCKER_IMAGE%'
+                    bat 'docker run -d -p 3000:3000 %DOCKER_IMAGE%'
                 }
             }
         }
