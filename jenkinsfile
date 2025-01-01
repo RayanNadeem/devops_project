@@ -24,6 +24,7 @@ pipeline {
         '''
     }
 }
+}
         stage('List Files') {
             steps {
                 bat 'dir'  // List the files in the workspace
