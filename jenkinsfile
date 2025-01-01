@@ -5,8 +5,8 @@ pipeline {
         GIT_REPO = 'https://github.com/RayanNadeem/devops_project.git'
         BRANCH = 'main'
         DOCKER_REGISTRY = 'docker.io' 
-        FRONTEND_IMAGE = 'docker.io/fqabdullah/front-end:latest'
-        BACKEND_IMAGE = 'docker.io/fqabdullah/backend:latest'
+        FRONTEND_IMAGE = 'docker.io/rayan651/front-end:latest'
+        BACKEND_IMAGE = 'docker.io/rayan651/backend:latest'
     }
 
     stages {
