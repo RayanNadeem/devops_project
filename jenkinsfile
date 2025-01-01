@@ -13,15 +13,17 @@ pipeline {
             }
         }
         stage('Checkout') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'dev-project',
-                                                  usernameVariable: 'username',
-                                                  passwordVariable: 'password')]) {
-                    // Clone the GitHub repository using credentials
-                    bat 'git clone https://%username%:%password%@github.com/RayanNadeem/devops_project'
-                }
-            }
-        }
+          steps {
+    withCredentials([usernamePassword(credentialsId: 'dev-project',
+                                       usernameVariable: 'username',
+                                       passwordVariable: 'password')]) {
+        // Increase buffer size and clone the GitHub repository using credentials
+        bat script: '''
+            git config --global http.postBuffer 524288000
+            git clone https://%username%:%password%@github.com/RayanNadeem/devops_project
+        '''
+    }
+}
         stage('List Files') {
             steps {
                 bat 'dir'  // List the files in the workspace
