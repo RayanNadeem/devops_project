@@ -98,13 +98,14 @@ pipeline {
                    
                     echo "Running Docker container from image: ${DOCKER_IMAGE1}"
                     bat 'docker run -d -p 3000:3000 %DOCKER_IMAGE%'
-                }
 
-                script {
-                   
+
                     echo "Running Docker container from image: ${DOCKER_IMAGE2}"
                     bat 'docker run -d -p 5000:5000 %DOCKER_IMAGE%'
                 }
+            
+                    
+              
             }
         }
         stage('Debug Docker Container') {
