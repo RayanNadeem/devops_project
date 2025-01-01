@@ -70,7 +70,7 @@ pipeline {
                             docker login %DOCKER_REGISTRY% -u %DOCKER_USERNAME% -p %DOCKER_PASSWORD%
                         """
 
-                        echo "Pushing Docker image: ${DOCKER_IMAGE}"
+                        echo "Pushing Docker image: ${DOCKER_IMAGE1}"
 
                         bat """
                             docker push %DOCKER_IMAGE1%
@@ -88,7 +88,7 @@ pipeline {
             steps {
                 script {
                     echo "Checking Docker registry for the pushed image:"
-                    bat 'docker pull %DOCKER_IMAGE%'
+                    bat 'docker pull %DOCKER_IMAGE1%'
                 }
             }
         }
@@ -97,11 +97,11 @@ pipeline {
                 script {
                    
                     echo "Running Docker container from image: ${DOCKER_IMAGE1}"
-                    bat 'docker run -d -p 3000:3000 %DOCKER_IMAGE%'
+                    bat 'docker run -d -p 3000:3000 %DOCKER_IMAGE1%'
 
 
                     echo "Running Docker container from image: ${DOCKER_IMAGE2}"
-                    bat 'docker run -d -p 5000:5000 %DOCKER_IMAGE%'
+                    bat 'docker run -d -p 5000:5000 %DOCKER_IMAGE2%'
                 }
             
                     
@@ -126,7 +126,7 @@ pipeline {
             script {
                 slackSend(
                     channel: '#ecommerce-web-applicaiton',
-                    message: "Pipeline succeeded! The Docker image ${DOCKER_IMAGE} was built and pushed successfully."
+                    message: "Pipeline succeeded! The Docker image ${DOCKER_IMAGE1} was built and pushed successfully."
                 )
             }
         }
