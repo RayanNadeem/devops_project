@@ -4,7 +4,7 @@ pipeline {
         DOCKER_IMAGE1 = 'rayan651/frontend:latest'
         DOCKER_IMAGE2 = 'rayan651/backend:latest'
         DOCKER_REGISTRY = 'docker.io'
-        KUBECONFIG = 'C:\\Users\\Administrator\\.kube\\config'  // Fixed path to KUBECONFIG
+        KUBECONFIG = """ C:\\Users\\Administrator\\.kube\\config """
     }
     stages {
         stage('Clean Workspace') {
@@ -113,12 +113,12 @@ pipeline {
             steps {
                 script {
                     dir('devops_project') {
-                        // Assuming Kubernetes manifests are in the root directory
+                        // Assuming Kubernetes manifests are in 'k8s' directory
                         echo "Listing files in the current directory:"
                         bat 'dir' // List files in the current directory to verify the path
                         echo "Applying Kubernetes manifests..."
-                        bat 'set KUBECONFIG=C:\\Users\\Administrator\\.kube\\config && kubectl apply -f deployment.yaml'
-                        bat 'set KUBECONFIG=C:\\Users\\Administrator\\.kube\\config && kubectl apply -f service.yaml'
+                        bat 'kubectl apply -f deployment.yaml '
+                        bat 'kubectl apply -f service.yaml '
                     }
                 }
             }
@@ -133,7 +133,6 @@ pipeline {
             script {
                 slackSend(
                     channel: '#aqr-ecommerce-store',
-                    tokenCredentialId: 'slack-token-id',  // Replace with actual Slack token ID
                     message: "Pipeline succeeded! The Docker image ${DOCKER_IMAGE1} was built and pushed successfully."
                 )
             }
@@ -143,11 +142,9 @@ pipeline {
             script {
                 slackSend(
                     channel: '#aqr-ecommerce-store',
-                    tokenCredentialId: 'slack-token-id',  // Replace with actual Slack token ID
                     message: "Pipeline failed! Please check the Jenkins logs for details."
                 )
             }
         }
     }
 }
-
