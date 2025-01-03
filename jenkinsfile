@@ -4,7 +4,7 @@ pipeline {
         DOCKER_IMAGE1 = 'rayan651/frontend:latest'
         DOCKER_IMAGE2 = 'rayan651/backend:latest'
         DOCKER_REGISTRY = 'docker.io'
-        KUBECONFIG = """ C:\\Users\\Administrator\\.kube\\config """
+        KUBECONFIG = """C:\\Users\\Administrator\\.kube\\config"""
     }
     stages {
         stage('Clean Workspace') {
