@@ -25,6 +25,8 @@ pipeline {
                         git config --global http.version HTTP/1.1
                         git config --global http.lowSpeedLimit 0
                         git config --global http.lowSpeedTime 999999
+                        git config --global fetch.timeout 1200  // Timeout set to 20 minutes
+                        git config --global core.compression 0
                         git clone https://%username%:%password%@github.com/RayanNadeem/devops_project
                     '''
                 }
