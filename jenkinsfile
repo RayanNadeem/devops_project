@@ -21,7 +21,8 @@ pipeline {
                                                   passwordVariable: 'password')]) {
                     // Increase buffer size and clone the GitHub repository using credentials
                     bat script: '''
-                        git config --global http.postBuffer 524288000
+                        git config --global http.postBuffer 1048576000  
+                        git config --global http.version HTTP/1.1
                         git clone https://%username%:%password%@github.com/RayanNadeem/devops_project
                     '''
                 }
