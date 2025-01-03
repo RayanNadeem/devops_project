@@ -22,6 +22,7 @@ pipeline {
                     // Increase buffer size and clone the GitHub repository using credentials
                     bat script: '''
                         git config --global http.postBuffer 524288000
+                        git config --global http.version HTTP/1.1
                         git clone https://%username%:%password%@github.com/RayanNadeem/devops_project
                     '''
                 }
@@ -35,25 +36,27 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    dir('devops_project/front-end') { // Navigate into the cloned repo directory
-                        echo "Building Docker image: ${DOCKER_IMAGE1}"
-                        bat "docker build -t ${DOCKER_IMAGE1} ."
+                    try {
+                        dir('devops_project/front-end') {
+                            echo "Building Docker image: ${DOCKER_IMAGE1}"
+                            bat "docker build -t ${DOCKER_IMAGE1} ."
+                        }
+                    } catch (Exception e) {
+                        currentBuild.result = 'FAILURE'
+                        error "Failed to build Docker image: ${DOCKER_IMAGE1}"
                     }
                 }
 
                 script {
-                    dir('devops_project/backend') { // Navigate into the cloned repo directory
-                        echo "Building Docker image: ${DOCKER_IMAGE2}"
-                        bat "docker build -t ${DOCKER_IMAGE2} ."
+                    try {
+                        dir('devops_project/backend') {
+                            echo "Building Docker image: ${DOCKER_IMAGE2}"
+                            bat "docker build -t ${DOCKER_IMAGE2} ."
+                        }
+                    } catch (Exception e) {
+                        currentBuild.result = 'FAILURE'
+                        error "Failed to build Docker image: ${DOCKER_IMAGE2}"
                     }
-                }
-            }
-        }
-        stage('Debug Docker Image Build') {
-            steps {
-                script {
-                    echo "Checking local Docker images after build:"
-                    bat 'docker images'
                 }
             }
         }
@@ -68,16 +71,16 @@ pipeline {
                         bat """
                             docker login ${DOCKER_REGISTRY} -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
                         """
-
-                        echo "Pushing Docker image: ${DOCKER_IMAGE1}"
-
-                        bat """
-                            docker push ${DOCKER_IMAGE1}
-                        """
-
-                        bat """
-                            docker push ${DOCKER_IMAGE2}
-                        """
+                        parallel(
+                            "Push Frontend Image": {
+                                echo "Pushing Docker image: ${DOCKER_IMAGE1}"
+                                bat "docker push ${DOCKER_IMAGE1}"
+                            },
+                            "Push Backend Image": {
+                                echo "Pushing Docker image: ${DOCKER_IMAGE2}"
+                                bat "docker push ${DOCKER_IMAGE2}"
+                            }
+                        )
                     }
                 }
             }
@@ -94,10 +97,10 @@ pipeline {
             steps {
                 script {
                     echo "Running Docker container from image: ${DOCKER_IMAGE1}"
-                    bat "docker run -d -p 3000:3000 ${DOCKER_IMAGE1}"
+                    bat(script: "docker run -d -p 3000:3000 ${DOCKER_IMAGE1}", returnStatus: true, wait: true, timeout: 5 * 60)
 
                     echo "Running Docker container from image: ${DOCKER_IMAGE2}"
-                    bat "docker run -d -p 5000:5000 ${DOCKER_IMAGE2}"
+                    bat(script: "docker run -d -p 5000:5000 ${DOCKER_IMAGE2}", returnStatus: true, wait: true, timeout: 5 * 60)
                 }
             }
         }
@@ -113,12 +116,14 @@ pipeline {
             steps {
                 script {
                     dir('devops_project') {
-                        // Assuming Kubernetes manifests are in 'k8s' directory
-                        echo "Listing files in the current directory:"
-                        bat 'dir' // List files in the current directory to verify the path
-                        echo "Applying Kubernetes manifests..."
-                        bat 'kubectl apply -f deployment.yaml '
-                        bat 'kubectl apply -f service.yaml '
+                        try {
+                            echo "Applying Kubernetes manifests..."
+                            bat 'kubectl apply -f deployment.yaml'
+                            bat 'kubectl apply -f service.yaml'
+                        } catch (Exception e) {
+                            currentBuild.result = 'FAILURE'
+                            error "Failed to deploy to Kubernetes"
+                        }
                     }
                 }
             }
@@ -133,7 +138,7 @@ pipeline {
             script {
                 slackSend(
                     channel: '#aqr-ecommerce-store',
-                    message: "Pipeline succeeded! The Docker image ${DOCKER_IMAGE1} was built and pushed successfully."
+                    message: "Pipeline succeeded! The Docker image ${DOCKER_IMAGE1} was built and pushed successfully. Check the details here: ${env.BUILD_URL}"
                 )
             }
         }
@@ -142,7 +147,7 @@ pipeline {
             script {
                 slackSend(
                     channel: '#aqr-ecommerce-store',
-                    message: "Pipeline failed! Please check the Jenkins logs for details."
+                    message: "Pipeline failed! Please check the Jenkins logs for details. Check the build here: ${env.BUILD_URL}"
                 )
             }
         }
