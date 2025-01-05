@@ -1,0 +1,87 @@
+.navbar {
+  background-color: #005700; 
+  height: 80px;
+}
+
+.navbar-brand img {
+  width: 150px;
+  height: auto;
+}
+
+.navbar .form-control {
+  border-radius: 0;
+  border: none;
+  outline: none;
+}
+
+.navbar .navbar-button {
+  background-color: #005700; 
+  border: none;
+  color: #fff;
+  transition: background-color 0.3s;
+}
+
+.navbar .navbar-button:hover {
+  background-color: #005700; 
+  color: #e6ffe6; 
+}
+
+.navbar .nav-link {
+  color: #e6ffe6; 
+  font-size: 1rem;
+  margin: 0 10px;
+  text-decoration: none;
+  transition: color 0.3s, transform 0.3s;
+}
+
+.navbar .nav-link:hover {
+  color: #ffffff; 
+  transform: scale(1.1);
+}
+
+.navbar .dropdown-menu {
+  background-color: #004d00; 
+  border: none;
+}
+
+.navbar .dropdown-item {
+  color: #e6ffe6; 
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.navbar .dropdown-item:hover {
+  background-color: #005700; 
+  color: #ffffff; 
+}
+
+.navbar-toggler {
+  border-color: #e6ffe6;
+}
+
+.navbar-toggler-icon {
+  background-color: #e6ffe6;
+}
+
+@media (max-width: 768px) {
+  .navbar {
+    height: auto;
+  }
+
+  .navbar .form-control {
+    width: 100%;
+  }
+}
+
+body {
+  background-color: #f4f4f4; 
+}
+
+.navbar .cart-icon {
+  font-size: 1.5rem;
+  color: #e6ffe6;
+  transition: color 0.3s;
+}
+
+.navbar .cart-icon:hover {
+  color: #ffffff;
+}

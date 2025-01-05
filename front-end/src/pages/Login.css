@@ -1,0 +1,37 @@
+/* Scope the styles specifically to the login-container */
+.login-container {
+    height: 60vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #8aee8a;
+  }
+  
+  /* Style the form within the login-container */
+  .login-container .login-form {
+    background: rgb(18, 202, 73);
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+  }
+  
+  /* Input styling within login-form */
+  .login-container .login-form input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    box-sizing: border-box;
+  }
+  
+  .login-container .login-form button:hover {
+    background-color: #6a11cb;
+    transform: scale(1.05);
+  }
+ 
+  
