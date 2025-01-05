@@ -1,0 +1,155 @@
+pipeline {
+    agent any
+    environment {
+        DOCKER_IMAGE1 = 'rayan651/frontend:latest'
+        DOCKER_IMAGE2 = 'rayan651/backend:latest'
+        DOCKER_REGISTRY = 'docker.io'
+        KUBECONFIG = """C:\\Users\\Administrator\\.kube\\config"""
+    }
+    stages {
+        stage('Clean Workspace') {
+            steps {
+                script {
+                    deleteDir() // Clean the workspace
+                }
+            }
+        }
+        stage('Checkout') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dev-project',
+                                                  usernameVariable: 'username',
+                                                  passwordVariable: 'password')]) {
+                    // Increase buffer size and clone the GitHub repository using credentials
+                    bat script: '''
+                        git config --global http.postBuffer 1548580000
+                        git config --global http.version HTTP/1.1
+                        git config --global http.lowSpeedLimit 0
+                        git config --global http.lowSpeedTime 999999
+                        git config --global fetch.timeout 1200  // Timeout set to 20 minutes
+                        git config --global core.compression 0
+                        git clone https://%username%:%password%@github.com/RayanNadeem/devops_project
+                    '''
+                }
+            }
+        }
+        stage('List Files') {
+            steps {
+                bat 'dir'  // List the files in the workspace
+            }
+        }
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    dir('devops_project/front-end') { // Navigate into the cloned repo directory
+                        echo "Building Docker image: ${DOCKER_IMAGE1}"
+                        bat "docker build -t ${DOCKER_IMAGE1} ."
+                    }
+                }
+
+                script {
+                    dir('devops_project/backend') { // Navigate into the cloned repo directory
+                        echo "Building Docker image: ${DOCKER_IMAGE2}"
+                        bat "docker build -t ${DOCKER_IMAGE2} ."
+                    }
+                }
+            }
+        }
+        stage('Debug Docker Image Build') {
+            steps {
+                script {
+                    echo "Checking local Docker images after build:"
+                    bat 'docker images'
+                }
+            }
+        }
+        stage('Push Docker Image') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'docker-credentials',
+                                                  usernameVariable: 'DOCKER_USERNAME',
+                                                  passwordVariable: 'DOCKER_PASSWORD')]) {
+                    script {
+                        echo "Logging in to Docker registry: ${DOCKER_REGISTRY} with user: ${DOCKER_USERNAME}"
+
+                        bat """
+                            docker login ${DOCKER_REGISTRY} -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
+                        """
+
+                        echo "Pushing Docker image: ${DOCKER_IMAGE1}"
+
+                        bat """
+                            docker push ${DOCKER_IMAGE1}
+                        """
+
+                        bat """
+                            docker push ${DOCKER_IMAGE2}
+                        """
+                    }
+                }
+            }
+        }
+        stage('Debug Docker Image Push') {
+            steps {
+                script {
+                    echo "Checking Docker registry for the pushed image:"
+                    bat "docker pull ${DOCKER_IMAGE1}"
+                }
+            }
+        }
+        stage('Run Docker Container') {
+            steps {
+                script {
+                    echo "Running Docker container from image: ${DOCKER_IMAGE1}"
+                    bat "docker run -d -p 3000:3000 ${DOCKER_IMAGE1}"
+
+                    echo "Running Docker container from image: ${DOCKER_IMAGE2}"
+                    bat "docker run -d -p 5000:5000 ${DOCKER_IMAGE2}"
+                }
+            }
+        }
+        stage('Debug Docker Container') {
+            steps {
+                script {
+                    echo "Listing running Docker containers:"
+                    bat 'docker ps'
+                }
+            }
+        }
+        stage('Deploy to Kubernetes') {
+            steps {
+                script {
+                    dir('devops_project') {
+                        // Assuming Kubernetes manifests are in 'k8s' directory
+                        echo "Listing files in the current directory:"
+                        bat 'dir' // List files in the current directory to verify the path
+                        echo "Applying Kubernetes manifests..."
+                        bat 'kubectl apply -f deployment.yaml '
+                        bat 'kubectl apply -f service.yaml '
+                    }
+                }
+            }
+        }
+    }
+    post {
+        always {
+            echo 'Pipeline completed.'
+        }
+        success {
+            echo 'Pipeline succeeded!'
+            script {
+                slackSend(
+                    channel: '#aqr-ecommerce-store',
+                    message: "Pipeline succeeded! The Docker image ${DOCKER_IMAGE1} was built and pushed successfully."
+                )
+            }
+        }
+        failure {
+            echo 'Pipeline failed.'
+            script {
+                slackSend(
+                    channel: '#aqr-ecommerce-store',
+                    message: "Pipeline failed! Please check the Jenkins logs for details."
+                )
+            }
+        }
+    }
+}
