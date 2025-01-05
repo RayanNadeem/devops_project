@@ -21,6 +21,7 @@ pipeline {
                                                   passwordVariable: 'password')]) {
                     // Increase buffer size and clone the GitHub repository using credentials
                     bat script: '''
+	 HEAD
                         git config --global http.postBuffer 1548580000
                         git config --global http.version HTTP/1.1
                         git config --global http.lowSpeedLimit 0
@@ -28,6 +29,10 @@ pipeline {
                         git config --global fetch.timeout 1200  // Timeout set to 20 minutes
                         git config --global core.compression 0
                         git clone https://%username%:%password%@github.com/RayanNadeem/devops_project
+
+                        git config --global http.postBuffer 524288000
+                        git clone https://%username%:%password%@github.com/RayanNadeem/devops_project.git
+ 	ff3aee9e426e901ecf4bfca13224c9ff56ff4e22
                     '''
                 }
             }
