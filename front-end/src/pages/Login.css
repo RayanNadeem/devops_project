@@ -34,4 +34,21 @@
     transform: scale(1.05);
   }
  
-  
+  /* src/pages/Profile.css */
+.profile-container {
+  padding: 20px;
+  max-width: auto;
+  height: 400px;
+  background-color: #8aee8a;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.profile-details p {
+  font-size: 18px;
+  margin: 10px 0;
+}
+
+.profile-details strong {
+  font-weight: bold;
+}

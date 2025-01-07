@@ -2,7 +2,6 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
 
@@ -23,21 +22,6 @@ mongoose
   .then(() => console.log("Connected to MongoDB"))
   .catch((err) => console.error("Could not connect to MongoDB", err));
 
-// Middleware for verifying JWT
-const authenticate = (req, res, next) => {
-  const token = req.headers.authorization?.split(" ")[1];
-  if (!token) {
-    return res.status(401).json({ message: "Unauthorized access." });
-  }
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded; // Attach user ID to the request object
-    next();
-  } catch (error) {
-    res.status(401).json({ message: "Invalid token." });
-  }
-};
-
 // User Registration Endpoint
 app.post("/api/Users/register", async (req, res) => {
   try {
@@ -53,11 +37,8 @@ app.post("/api/Users/register", async (req, res) => {
       return res.status(400).json({ message: "User already exists." });
     }
 
-    // Hash the password
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Create a new user
-    const newUser = new User({ username, email, password: hashedPassword });
+    // Create a new user (no hashing)
+    const newUser = new User({ username, email, password });
 
     await newUser.save();
     res.status(201).json({ message: "User registered successfully." });
@@ -81,9 +62,8 @@ app.post("/api/Users/login", async (req, res) => {
       return res.status(400).json({ message: "Invalid credentials." });
     }
 
-    // Compare the hashed password
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
+    // Compare the entered password directly
+    if (user.password !== password) {
       return res.status(400).json({ message: "Invalid credentials." });
     }
 
@@ -97,7 +77,7 @@ app.post("/api/Users/login", async (req, res) => {
 });
 
 // Checkout Endpoint
-app.post("/api/checkout", authenticate, async (req, res) => {
+app.post("/api/checkout", async (req, res) => {
   try {
     const { name, email, address, city = "N/A", zip = "N/A", items, totalAmount } = req.body;
 
@@ -124,7 +104,7 @@ app.post("/api/checkout", authenticate, async (req, res) => {
 });
 
 // Contact Endpoint
-app.post("/api/contact", authenticate, async (req, res) => {
+app.post("/api/contact", async (req, res) => {
   try {
     const { name, email, message } = req.body;
 

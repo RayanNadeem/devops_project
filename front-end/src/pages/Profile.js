@@ -1,29 +1,43 @@
 // src/pages/Profile.js
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { useAuth } from "../context/AuthContext";
+import axios from "axios";
+import "./Login"; // You can style this page as needed
 
 const Profile = () => {
-  const [userDetails, setUserDetails] = useState({ username: "", email: "", password: "" });
+  const { user } = useAuth(); // Get user data from AuthContext
+  const [profileData, setProfileData] = useState({ name: "", email: "" });
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      fetch("/api/Users/me", {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-        .then((res) => res.json())
-        .then((data) => setUserDetails(data))
-        .catch((err) => console.error(err));
+    // If you want to fetch the profile data from the backend (optional)
+    const fetchProfileData = async () => {
+      try {
+        const response = await axios.get("/api/Users/profile", {
+          headers: { Authorization: `Bearer ${user.token}` },
+        });
+        setProfileData(response.data); // Assuming response has the name and email
+      } catch (error) {
+        console.error("Error fetching profile data:", error);
+      }
+    };
+
+    if (user) {
+      setProfileData({ name: user.username, email: user.email }); // Default to the logged-in user's data
+      fetchProfileData(); // Optionally fetch from the backend
     }
-  }, []);
+  }, [user]);
+
+  if (!user) {
+    return <div>Please log in to view your profile.</div>;
+  }
 
   return (
-    <div className="container mt-5">
-      <h2>Profile</h2>
-      <ul>
-        <li><strong>Username:</strong> {userDetails.username}</li>
-        <li><strong>Email:</strong> {userDetails.email}</li>
-        <li><strong>Password:</strong> {userDetails.password}</li>
-      </ul>
+    <div className="profile-container">
+      <h2 className="text-center">Profile</h2>
+      <div className="profile-details">
+        <p><strong>Name:</strong> {profileData.name}</p>
+        <p><strong>Email:</strong> {profileData.email}</p>
+      </div>
     </div>
   );
 };

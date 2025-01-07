@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import { CartProvider } from "./CartContext";
-import { AuthProvider } from "./components/AuthContext"; // Added AuthProvider
+import { CartProvider } from "./context/CartContext";
 import HomePage from "./pages/HomePage";
 import ContactUs from "./pages/ContactUs";
 import SearchPage from "./pages/SearchPage";
@@ -14,6 +13,8 @@ import Footer from "./components/Footer";
 import ProductDetails from "./pages/ProductDetails";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import { AuthProvider } from './context/AuthContext';
+import Profile from "./pages/Profile";
 import './App.css';
 
 const App = () => {
@@ -28,15 +29,18 @@ const App = () => {
     }
 
     const filteredProducts = products.filter((product) => {
-      const category = product.category || ""; // Fallback to empty string if undefined
-      return typeof category === "string" && category.toLowerCase().includes(term.toLowerCase());
+      const category = product.category || "";
+      if (typeof category === "string") {
+        return category.toLowerCase().includes(term.toLowerCase());
+      }
+      return false;
     });
 
     setSearchResults(filteredProducts);
   };
 
   return (
-    <AuthProvider> {/* Wrap with AuthProvider */}
+    <AuthProvider>
       <CartProvider>
         <Router>
           <EcommerceNavbar onSearch={handleSearch} />
@@ -50,6 +54,7 @@ const App = () => {
             <Route path="/product/:id" element={<ProductDetails products={products} />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/profile" element={<Profile />} />
           </Routes>
           <Footer />
         </Router>
