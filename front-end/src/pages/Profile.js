@@ -1,16 +1,3 @@
-
-import React, { useEffect, useState } from "react";
-import { useAuth } from "../context/AuthContext";
-import axios from "axios";
-import "./Login"; 
-
-const Profile = () => {
-  const { user } = useAuth();  
-  const [profileData, setProfileData] = useState({ name: "", email: "" });
-
-  useEffect(() => {
-     
-
 // src/pages/Profile.js
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
