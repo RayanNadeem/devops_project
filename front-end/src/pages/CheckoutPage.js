@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Container, Row, Col, Form, Button } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useCart } from "../CartContext";
+import { useCart } from "../context/CartContext";
 
 const CheckoutPage = () => {
   const [name, setName] = useState("");
@@ -13,7 +13,7 @@ const CheckoutPage = () => {
   const [city, setCity] = useState("");
   const [zip, setZip] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("creditCard");
-  const [phoneNumber, setPhoneNumber] = useState("");  // Added state for phoneNumber
+  const [phoneNumber, setPhoneNumber] = useState("");  
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {

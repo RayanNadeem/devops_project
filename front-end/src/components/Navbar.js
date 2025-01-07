@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Navbar, Nav, Form, FormControl, Button, NavDropdown, Badge } from "react-bootstrap";
 import logoaqr from "../Images/logoaqr.png";
-import { useCart } from "../CartContext";
+import { useCart } from "../context/CartContext";
+import { useAuth } from "../context/AuthContext"; // Import useAuth
 import "./Navbar.css";
 
-const EcommerceNavbar = ({ setSearchResults }) => {
+const EcommerceNavbar = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const { cartItems } = useCart();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [username, setUsername] = useState("");
+  const { user, logout } = useAuth(); // Use useAuth here
   const navigate = useNavigate();
 
   // Calculate the total number of items in the cart
@@ -25,32 +25,9 @@ const EcommerceNavbar = ({ setSearchResults }) => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    setIsLoggedIn(false);
-    setUsername("");
+    logout(); // Call logout from useAuth
     navigate("/login");
   };
-
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      // Fetch user details from the backend (for example, to get the username)
-      fetch("/api/Users/me", {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          setIsLoggedIn(true);
-          setUsername(data.username || "User");
-        })
-        .catch(() => {
-          setIsLoggedIn(false);
-        });
-    } else {
-      setIsLoggedIn(false);
-      setUsername("");
-    }
-  }, []);
 
   return (
     <Navbar expand="lg" className="shadow-sm px-5">
@@ -65,7 +42,7 @@ const EcommerceNavbar = ({ setSearchResults }) => {
       <Navbar.Collapse id="basic-navbar-nav">
         <Form
           className="d-flex mx-auto"
-          style={{ width: "50%" }}
+          style={{ width: "40%" }}
           onSubmit={handleSearch}
         >
           <FormControl
@@ -92,9 +69,9 @@ const EcommerceNavbar = ({ setSearchResults }) => {
             <i className="bi bi-cart"></i> Cart 
             {totalItems > 0 && <Badge bg="secondary" className="ms-1">{totalItems}</Badge>}
           </Nav.Link>
-          {isLoggedIn ? (
-            <NavDropdown title={username} id="user-nav-dropdown">
-              <NavDropdown.Item as={Link} to="/profile">Profile</NavDropdown.Item>
+          {user ? (
+            <NavDropdown title={user.username} id="user-nav-dropdown">
+              <NavDropdown.Item as={Link} to="/profile">Profile</NavDropdown.Item> {/* Profile link */}
               <NavDropdown.Item onClick={handleLogout}>Logout</NavDropdown.Item>
             </NavDropdown>
           ) : (

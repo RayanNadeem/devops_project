@@ -3,7 +3,7 @@ import { Alert } from "react-bootstrap";
 import ImageCarousel from "../components/Carousal";
 import ProductGrid from "../components/ProductGrid";
 import SearchResults from "../components/SearchResults";
-import { useCart } from "../CartContext";
+import { useCart } from "../context/CartContext";
 
 const HomePage = ({ searchResults, searchTerm }) => {
   const { cartMessage } = useCart();

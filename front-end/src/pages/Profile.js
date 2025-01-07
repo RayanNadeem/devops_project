@@ -1,29 +1,42 @@
-// src/pages/Profile.js
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { useAuth } from "../context/AuthContext";
+import axios from "axios";
+import "./Login"; 
 
 const Profile = () => {
-  const [userDetails, setUserDetails] = useState({ username: "", email: "", password: "" });
+  const { user } = useAuth();  
+  const [profileData, setProfileData] = useState({ name: "", email: "" });
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      fetch("/api/Users/me", {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-        .then((res) => res.json())
-        .then((data) => setUserDetails(data))
-        .catch((err) => console.error(err));
+     
+    const fetchProfileData = async () => {
+      try {
+        const response = await axios.get("/api/Users/profile", {
+          headers: { Authorization: `Bearer ${user.token}` },
+        });
+        setProfileData(response.data); 
+      } catch (error) {
+        console.error("Error fetching profile data:", error);
+      }
+    };
+
+    if (user) {
+      setProfileData({ name: user.username, email: user.email }); 
+      fetchProfileData(); 
     }
-  }, []);
+  }, [user]);
+
+  if (!user) {
+    return <div>Please log in to view your profile.</div>;
+  }
 
   return (
-    <div className="container mt-5">
-      <h2>Profile</h2>
-      <ul>
-        <li><strong>Username:</strong> {userDetails.username}</li>
-        <li><strong>Email:</strong> {userDetails.email}</li>
-        <li><strong>Password:</strong> {userDetails.password}</li>
-      </ul>
+    <div className="profile-container">
+      <h2 className="text-center">Profile</h2>
+      <div className="profile-details">
+        <p><strong>Name:</strong> {profileData.name}</p>
+        <p><strong></strong> {profileData.email}</p>
+      </div>
     </div>
   );
 };

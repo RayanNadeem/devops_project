@@ -15,14 +15,14 @@
 }
 
 .navbar .navbar-button {
-  background-color: #005700; 
+  background-color: #45a845; 
   border: none;
   color: #fff;
   transition: background-color 0.3s;
 }
 
 .navbar .navbar-button:hover {
-  background-color: #005700; 
+  background-color: #1b911b; 
   color: #e6ffe6; 
 }
 

@@ -9,7 +9,7 @@
   
   /* Style the form within the login-container */
   .login-container .login-form {
-    background: rgb(18, 202, 73);
+    background: #25d425;
     padding: 2rem;
     border-radius: 10px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
@@ -34,4 +34,21 @@
     transform: scale(1.05);
   }
  
-  
+  /* src/pages/Profile.css */
+.profile-container {
+  padding: 20px;
+  max-width: auto;
+  height: 400px;
+  background-color: #2b2daa;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.profile-details p {
+  font-size: 18px;
+  margin: 10px 0;
+}
+
+.profile-details strong {
+  font-weight: bold;
+}

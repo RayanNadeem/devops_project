@@ -1,13 +1,13 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import Register from "./Register";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext"; 
 import axios from "axios";
-import "./Login.css"; 
+import "./Login.css";
+
 const Login = () => {
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
+  const [formData, setFormData] = useState({ email: "", password: "" });
+  const { login } = useAuth(); 
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -17,8 +17,10 @@ const Login = () => {
     e.preventDefault();
     try {
       const response = await axios.post("/api/Users/login", formData);
-      localStorage.setItem("token", response.data.token);
+      const { token, username } = response.data;
+      login({ token, username }); // Update global auth state
       alert("Login successful");
+      navigate("/"); // Redirect to homepage
     } catch (error) {
       alert(error.response?.data?.message || "An error occurred.");
     }
@@ -48,20 +50,15 @@ const Login = () => {
             required
           />
         </div>
-        <button type="submit" className="btn btn-primary w-100">
-          Login
-        </button>
+        <button type="submit" className="btn btn-primary w-100">Login</button>
         <div className="text-center mt-3">
           <p>
             Don't have an account?{" "}
-            <Link to="/register" className="register-link">
-              Register
-            </Link>
+            <Link to="/register" className="register-link">Register</Link>
           </p>
         </div>
       </form>
-      
-     </div>
+    </div>
   );
 };
 
